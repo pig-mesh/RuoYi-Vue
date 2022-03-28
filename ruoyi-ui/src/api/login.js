@@ -18,6 +18,21 @@ export function login(username, password, code, uuid) {
   })
 }
 
+// SSO登录方法
+export function loginBySSO(code) {
+  const data = {
+    "ssoCode": code
+  }
+  return request({
+    url: '/login',
+    headers: {
+      isToken: false
+    },
+    method: 'post',
+    data: data
+  })
+}
+
 // 注册方法
 export function register(data) {
   return request({

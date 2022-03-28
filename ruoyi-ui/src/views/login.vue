@@ -52,6 +52,9 @@
         <div style="float: right;" v-if="register">
           <router-link class="link-type" :to="'/register'">立即注册</router-link>
         </div>
+        <div style="float: right;">
+          <a href="#" @click="handleSSOLogin">PIG SSO 登录</a>
+        </div>
       </el-form-item>
     </el-form>
     <!--  底部  -->
@@ -126,6 +129,9 @@ export default {
         password: password === undefined ? this.loginForm.password : decrypt(password),
         rememberMe: rememberMe === undefined ? false : Boolean(rememberMe)
       };
+    },
+    handleSSOLogin(){
+      window.location.href = "http://127.0.0.1:3000/oauth/authorize?client_id=ruoyi&response_type=code&redirect_uri=http://127.0.0.1:1024/sso"
     },
     handleLogin() {
       this.$refs.loginForm.validate(valid => {

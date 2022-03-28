@@ -2,7 +2,7 @@ package com.ruoyi.common.core.domain.model;
 
 /**
  * 用户登录对象
- * 
+ *
  * @author ruoyi
  */
 public class LoginBody
@@ -21,6 +21,11 @@ public class LoginBody
      * 验证码
      */
     private String code;
+
+    /**
+     * sso 登录
+     */
+    private String ssoCode;
 
     /**
      * 唯一标识
@@ -65,5 +70,13 @@ public class LoginBody
     public void setUuid(String uuid)
     {
         this.uuid = uuid;
+    }
+
+    public String getSsoCode() {
+        return ssoCode;
+    }
+
+    public void setSsoCode(String ssoCode) {
+        this.ssoCode = ssoCode;
     }
 }
