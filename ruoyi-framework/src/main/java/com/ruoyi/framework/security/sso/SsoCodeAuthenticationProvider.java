@@ -36,7 +36,9 @@ public class SsoCodeAuthenticationProvider implements AuthenticationProvider {
 
         String body = getAccessToken(code);
 
-        String username = JSONObject.parseObject(body).getJSONObject("user_info").getString("username");
+        String accessToken = JSONObject.parseObject(body).getString("access_token");
+
+        String username = JSONObject.parseObject(getSsoUser(accessToken)).getJSONObject("user_info").getString("username");
         // 根据code 换username
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
@@ -47,6 +49,7 @@ public class SsoCodeAuthenticationProvider implements AuthenticationProvider {
 
         return authenticationResult;
     }
+
 
     @Override
     public boolean supports(Class<?> authentication) {
@@ -65,19 +68,20 @@ public class SsoCodeAuthenticationProvider implements AuthenticationProvider {
     public String getAccessToken(String code) {
         HttpHeaders headers = buildRequestHeader();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
         try {
+            Environment environment = SpringUtils.getBean(Environment.class);
             MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
             map.add("grant_type", "authorization_code");
-            map.add("scope", "server");
+            map.add("scope", environment.getProperty("sso"));
             map.add("code", code);
 
-            Environment environment = SpringUtils.getBean(Environment.class);
             String callback = environment.getProperty("sso.callback-url");
             String auth = environment.getProperty("sso.auth-server");
             map.add("redirect_uri", callback);
             HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
 
-            ResponseEntity<String> response = new RestTemplate().postForEntity(auth + "/oauth/token", request, String.class);
+            ResponseEntity<String> response = new RestTemplate().postForEntity(auth + "/oauth2/token", request, String.class);
             return response.getBody();
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
@@ -96,5 +100,14 @@ public class SsoCodeAuthenticationProvider implements AuthenticationProvider {
         headers.add(HttpHeaders.AUTHORIZATION, "Basic " + encodeToString);
         return headers;
     }
+
+    private String getSsoUser(String accessToken) {
+        Environment environment = SpringUtils.getBean(Environment.class);
+        String auth = environment.getProperty("sso.auth-server");
+        ResponseEntity<String> response = new RestTemplate().getForEntity(auth + "/token/check_token?token="+ accessToken, String.class);
+        return response.getBody();
+
+    }
+
 
 }
