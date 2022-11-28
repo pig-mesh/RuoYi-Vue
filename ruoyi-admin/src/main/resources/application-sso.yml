@@ -1,0 +1,6 @@
+sso:
+    scope: server
+    client-id: ruoyi
+    client-secret: ruoyi
+    callback-url: http://127.0.0.1:1024/sso  #业务系统的SSO 登录页面
+    auth-server: http://172.27.0.5:3000     # pig  认证中心地址

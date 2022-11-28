@@ -6,7 +6,7 @@ spring:
         druid:
             # 主库数据源
             master:
-                url: jdbc:mysql://localhost:3306/ruoyi?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
+                url: jdbc:mysql://172.27.0.5:3306/ry?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
                 username: root
                 password: root
             # 从库数据源
@@ -55,10 +55,3 @@ spring:
                 wall:
                     config:
                         multi-statement-allow: true
-
-sso:
-    scope: server
-    client-id: ruoyi
-    client-secret: ruoyi
-    callback-url: http://127.0.0.1:1024/sso  #业务系统的SSO 登录页面
-    auth-server: http://127.0.0.1:3000     # pig  认证中心地址

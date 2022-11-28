@@ -36,9 +36,8 @@ public class SsoCodeAuthenticationProvider implements AuthenticationProvider {
 
         String body = getAccessToken(code);
 
-        String accessToken = JSONObject.parseObject(body).getString("access_token");
+        String username = JSONObject.parseObject(body).getString("username");
 
-        String username = JSONObject.parseObject(getSsoUser(accessToken)).getJSONObject("user_info").getString("username");
         // 根据code 换username
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
@@ -81,7 +80,7 @@ public class SsoCodeAuthenticationProvider implements AuthenticationProvider {
             map.add("redirect_uri", callback);
             HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
 
-            ResponseEntity<String> response = new RestTemplate().postForEntity(auth + "/oauth2/token", request, String.class);
+            ResponseEntity<String> response = new RestTemplate().postForEntity(auth + "/oauth/token", request, String.class);
             return response.getBody();
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
