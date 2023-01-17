@@ -102,9 +102,7 @@ export default {
         type: 'warning'
       }).then(() => {
         this.$store.dispatch('LogOut').then(() => {
-
-          debugger
-          location.href = 'http://172.27.0.5:3000/logout?redirect_url=http://127.0.0.1:1024/';
+          location.href = 'http://127.0.0.1:3000/logout?redirect_url=http://127.0.0.1:1024/';
         })
       }).catch(() => {});
     }

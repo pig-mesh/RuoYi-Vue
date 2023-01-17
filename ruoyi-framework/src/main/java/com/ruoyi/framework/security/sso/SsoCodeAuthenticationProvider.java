@@ -5,6 +5,8 @@ package com.ruoyi.framework.security.sso;
  * @date 2022/3/28
  */
 
+import cn.hutool.http.HttpRequest;
+import cn.hutool.http.HttpResponse;
 import com.alibaba.fastjson.JSONObject;
 import com.ruoyi.common.utils.sign.Base64;
 import com.ruoyi.common.utils.spring.SpringUtils;
@@ -22,6 +24,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+
 /**
  * SSO登陆鉴权 Provider，要求实现 AuthenticationProvider 接口
  */
@@ -36,10 +39,14 @@ public class SsoCodeAuthenticationProvider implements AuthenticationProvider {
 
         String body = getAccessToken(code);
 
-        String username = JSONObject.parseObject(body).getString("username");
+        String token = JSONObject.parseObject(body).getString("access_token");
+
+        String ssoUser = getSsoUser(token);
+        JSONObject sysUser = JSONObject.parseObject(ssoUser).getJSONObject("data").getJSONObject("sysUser");
+
 
         // 根据code 换username
-        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(sysUser.getString("username"));
 
         // 此时鉴权成功后，应当重新 new 一个拥有鉴权的 authenticationResult 返回
         SsoCodeAuthenticationToken authenticationResult = new SsoCodeAuthenticationToken(userDetails, userDetails.getAuthorities());
@@ -72,15 +79,15 @@ public class SsoCodeAuthenticationProvider implements AuthenticationProvider {
             Environment environment = SpringUtils.getBean(Environment.class);
             MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
             map.add("grant_type", "authorization_code");
-            map.add("scope", environment.getProperty("sso"));
+            map.add("scope", environment.getProperty("sso.scope"));
             map.add("code", code);
 
             String callback = environment.getProperty("sso.callback-url");
-            String auth = environment.getProperty("sso.auth-server");
+            String auth = environment.getProperty("sso.gateway-server");
             map.add("redirect_uri", callback);
             HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
 
-            ResponseEntity<String> response = new RestTemplate().postForEntity(auth + "/oauth/token", request, String.class);
+            ResponseEntity<String> response = new RestTemplate().postForEntity(auth + "/auth/oauth2/token", request, String.class);
             return response.getBody();
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
@@ -100,11 +107,13 @@ public class SsoCodeAuthenticationProvider implements AuthenticationProvider {
         return headers;
     }
 
-    private String getSsoUser(String accessToken) {
+    private String getSsoUser(String token) {
         Environment environment = SpringUtils.getBean(Environment.class);
-        String auth = environment.getProperty("sso.auth-server");
-        ResponseEntity<String> response = new RestTemplate().getForEntity(auth + "/token/check_token?token="+ accessToken, String.class);
-        return response.getBody();
+        String auth = environment.getProperty("sso.gateway-server");
+        HttpResponse execute = HttpRequest.get(auth + "/admin/user/info")
+                .header("Authorization","Bearer "+token)
+                .execute();
+        return execute.body();
 
     }
 

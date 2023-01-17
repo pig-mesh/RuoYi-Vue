@@ -131,7 +131,7 @@ export default {
       };
     },
     handleSSOLogin(){
-      window.location.href = "http://172.27.0.5:3000/oauth/authorize?client_id=ruoyi&response_type=code&scope=server&redirect_uri=http://127.0.0.1:1024/sso"
+      window.location.href = "http://127.0.0.1:3000/oauth2/authorize?client_id=ruoyi&response_type=code&scope=server&redirect_uri=http://127.0.0.1:1024/sso"
     },
     handleLogin() {
       this.$refs.loginForm.validate(valid => {
