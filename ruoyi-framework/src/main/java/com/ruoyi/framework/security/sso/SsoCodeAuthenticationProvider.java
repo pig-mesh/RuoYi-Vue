@@ -42,11 +42,11 @@ public class SsoCodeAuthenticationProvider implements AuthenticationProvider {
         String token = JSONObject.parseObject(body).getString("access_token");
 
         String ssoUser = getSsoUser(token);
-        JSONObject sysUser = JSONObject.parseObject(ssoUser).getJSONObject("data").getJSONObject("sysUser");
+        String username  = JSONObject.parseObject(ssoUser).getJSONObject("data").getString("username");
 
 
         // 根据code 换username
-        UserDetails userDetails = userDetailsService.loadUserByUsername(sysUser.getString("username"));
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
         // 此时鉴权成功后，应当重新 new 一个拥有鉴权的 authenticationResult 返回
         SsoCodeAuthenticationToken authenticationResult = new SsoCodeAuthenticationToken(userDetails, userDetails.getAuthorities());
@@ -87,7 +87,7 @@ public class SsoCodeAuthenticationProvider implements AuthenticationProvider {
             map.add("redirect_uri", callback);
             HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
 
-            ResponseEntity<String> response = new RestTemplate().postForEntity(auth + "/auth/oauth2/token", request, String.class);
+            ResponseEntity<String> response = new RestTemplate().postForEntity(auth + "/admin/oauth2/token", request, String.class);
             return response.getBody();
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
