@@ -42,7 +42,7 @@ public class SsoCodeAuthenticationProvider implements AuthenticationProvider {
         String token = JSONObject.parseObject(body).getString("access_token");
 
         String ssoUser = getSsoUser(token);
-        String username  = JSONObject.parseObject(ssoUser).getJSONObject("data").getString("username");
+        String username = JSONObject.parseObject(ssoUser).getJSONObject("data").getString("username");
 
 
         // 根据code 换username
@@ -83,11 +83,11 @@ public class SsoCodeAuthenticationProvider implements AuthenticationProvider {
             map.add("code", code);
 
             String callback = environment.getProperty("sso.callback-url");
-            String auth = environment.getProperty("sso.gateway-server");
+            String auth = environment.getProperty("sso.auth-token-info");
             map.add("redirect_uri", callback);
             HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
 
-            ResponseEntity<String> response = new RestTemplate().postForEntity(auth + "/admin/oauth2/token", request, String.class);
+            ResponseEntity<String> response = new RestTemplate().postForEntity(auth, request, String.class);
             return response.getBody();
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
@@ -109,9 +109,9 @@ public class SsoCodeAuthenticationProvider implements AuthenticationProvider {
 
     private String getSsoUser(String token) {
         Environment environment = SpringUtils.getBean(Environment.class);
-        String auth = environment.getProperty("sso.gateway-server");
-        HttpResponse execute = HttpRequest.get(auth + "/admin/user/info")
-                .header("Authorization","Bearer "+token)
+        String auth = environment.getProperty("sso.auth-user-info");
+        HttpResponse execute = HttpRequest.get(auth)
+                .header("Authorization", "Bearer " + token)
                 .execute();
         return execute.body();
 

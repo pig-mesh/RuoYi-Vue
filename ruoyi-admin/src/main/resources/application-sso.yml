@@ -1,6 +1,8 @@
 sso:
-    scope: server
-    client-id: ruoyi
-    client-secret: ruoyi
-    callback-url: http://127.0.0.1:1024/sso  #业务系统的SSO 登录页面
-    gateway-server: http://127.0.0.1:9999     # pig  认证中心地址
+  scope: server
+  client-id: ruoyi
+  client-secret: ruoyi
+  callback-url: http://127.0.0.1:1024/sso  #业务系统的SSO 登录页面
+  auth-token-info: http://127.0.0.1:9999/auth/oauth2/token     # pig  获取token 路径（
+  #auth-token-info: http://127.0.0.1:9999/admin/oauth2/token     # pig  单体版本获取token 路径 (5.9+以上版本支持)
+  auth-user-info: http://127.0.0.1:9999/admin/user/info     # pig  根据token获取用户信息地址
